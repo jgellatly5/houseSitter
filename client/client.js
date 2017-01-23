@@ -9,17 +9,14 @@ Template.selectHouse.helpers({
 
 Template.selectHouse.events = {
 	'change #selectHouse': function(evt) {
-		Session.set('selectedHouseId', evt.currentTarget.value);
+		var selectedId = evt.currentTarget.value;
+		var newId = LocalHouse.upsert(
+			selectedId,
+			HousesCollection.findOne(selectedId) || newHouse).insertedId;
+		if (!newId) newId = selectedId;
+		Session.set('selectedHouseId', newId);
 	}
 };
-
-Template.showHouse.helpers({
-	house: function() {
-		return HousesCollection.findOne({
-			_id: Session.get("selectedHouseId")
-		});
-	}
-});
 
 Template.showHouse.events({
 	'click button#delete': function(evt) {
@@ -69,4 +66,17 @@ Template.houseForm.events({
 		// empty the form
 		$('input').val('');
 	}
+});
+
+LocalHouse = new Mongo.Collection(null);
+var newHouse = {
+	name: '',
+	plants: [],
+	lastsave: 'never',
+	status: 'unsaved'
+	};
+Session.setDefault('selectedHouseId', '');
+
+Template.registerHelper('selectHouse', function() {
+	return LocalHouse.findOne(Session.get('selectedHouseId'));
 });
