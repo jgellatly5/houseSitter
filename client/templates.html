@@ -48,10 +48,10 @@
 		<h3>Edit {{name}}'s house</h3>
 		<form id="houseForm">
 			<fieldset id="house-name">
-				Name <input id="house-name" type="text" placeholder="Name"><br/>
+				Name <input id="house-name" class="name" type="text" placeholder="Name" value="{{name}}"><br/>
 			</fieldset>
 			<label>Plants</label>
-				{{#each plants}}
+				{{#each withIndex plants}}
 					{{> plantFieldset}}
 				{{/each}}
 			<button class="addPlant">AddPlant</button>
@@ -63,8 +63,8 @@
 
 <template name="plantFieldset">
 	<fieldset>
-		Color <input class="color" type="text" value="{{color}}">
-		Instructions <input class="instructions" type="text" value="{{instructions}}">
-		<button class="removePlant">RemovePlant</button>
+		Color <input class="color" type="text" value="{{color}}" data-index="{{index}}">
+		Instructions <input class="instructions" type="text" value="{{instructions}}" data-index="{{index}}">
+		<button class="removePlant" data-index="{{index}}">RemovePlant</button>
 	</fieldset>
 </template>

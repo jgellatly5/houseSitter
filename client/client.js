@@ -80,3 +80,12 @@ Session.setDefault('selectedHouseId', '');
 Template.registerHelper('selectedHouse', function() {
 	return LocalHouse.findOne(Session.get('selectedHouseId'));
 });
+
+Template.registerHelper('withIndex', function(list) {
+	var withIndex = _.map(list, function(v,i) {
+		if (v === null) return;
+		v.index = i;
+		return v;
+	});
+	return withIndex;
+});
