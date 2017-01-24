@@ -54,18 +54,18 @@ Template.houseForm.events({
 	'click button.addPlant': function(evt) {
 		evt.preventDefault();
 		var newPlant = {color: '', instructions: ''};
-		var modifier = {$push: {'plants': newPlant}};
+		var modifier = {$push: {'plants': newPlant}, $set: {'status': 'unsaved'}};
 		updateLocalHouse(Session.get('selectedHouseId'), modifier);
 	},
 	'keyup input#house-name': function(evt) {
 		evt.preventDefault();
-		var modifier = {$set: {'name': evt.currentTarget.value}};
+		var modifier = {$set: {'name': evt.currentTarget.value, 'status': 'unsaved'}};
 		updateLocalHouse(Session.get('selectedHouseId'), modifier);
 	},
 	'click button#saveHouse': function(evt) {
 		evt.preventDefault();
 		var id = Session.get('selectedHouseId');
-		var modifier = {$set: {'lastsave': new Date()}};
+		var modifier = {$set: {'lastsave': new Date(), 'status': 'saved'}};
 		updateLocalHouse(id, modifier);
 		// persist house document in remote db
 		HousesCollection.upsert(
@@ -112,7 +112,7 @@ Template.plantFieldset.events({
 		var index = evt.target.getAttribute('data-index');
 		var plants = Template.parentData(1).plants;
 		plants.splice(index, 1);
-		var modifier = {$set: {'plants': plants}};
+		var modifier = {$set: {'plants': plants, 'status': 'unsaved'}};
 
 		updateLocalHouse(Session.get('selectedHouseId'), modifier);
 	},
@@ -123,7 +123,35 @@ Template.plantFieldset.events({
 		var plantProperty = 'plants.' + index + '.' + field;
 		var modifier = {$set: {}};
 		modifier['$set'][plantProperty] = evt.target.value;
+		modifier['$set'].status = 'unsaved';
 
 		updateLocalHouse(Session.get('selectedHouseId'), modifier);
 	}
+});
+
+Template.notificationArea.helpers({
+	notification: function() {
+		return Session.get('notification');
+	}
+});
+
+Template.houseForm.onCreated(function() {
+	this.autorun(function() {
+		if (HousesCollection.findOne(Session.get('selectedHouseId')) &&
+			LocalHouse.findOne(Session.get('selectedHouseId')).lastsave <
+			HousesCollection.findOne(Session.get('selectedHouseId')).lastsave) {
+			Session.set('notification', {
+				type: 'warning',
+				text: 'This document has been changed inside the database!'
+			});
+		} else if (LocalHouse.findOne(Session.get('selectedHouseId')) &&
+			LocalHouse.findOne(Session.get('selectedHouseId')).status === 'unsaved') {
+			Session.set('notification', {
+				type: 'reminder',
+				text: 'Remember to save your changes'
+			});
+		} else {
+			Session.set('notification', '');
+		}
+	})
 });
