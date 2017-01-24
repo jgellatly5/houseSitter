@@ -51,6 +51,11 @@ Template.plantDetails.events({
 });
 
 Template.houseForm.events({
+	'keyup input#house-name': function(evt) {
+		evt.preventDefault();
+		var modifier = {$set: {'name': evt.currentTarget.value}};
+		updateLocalHouse(Session.get('selectedHouseId'), modifier);
+	},
 	'click button#saveHouse': function(evt) {
 		evt.preventDefault();
 		var houseName = $('input[id=house-name]').val();
@@ -89,3 +94,12 @@ Template.registerHelper('withIndex', function(list) {
 	});
 	return withIndex;
 });
+
+updateLocalHouse = function(id, modifier) {
+	LocalHouse.update(
+	{
+		'_id': id
+	},
+	modifier
+	);
+};
