@@ -7,7 +7,7 @@ Template.selectHouse.helpers({
 	}
 });
 
-Template.selectHouse.events = {
+Template.selectHouse.events({
 	'change #selectHouse': function(evt) {
 		var selectedId = evt.currentTarget.value;
 		var newId = LocalHouse.upsert(
@@ -16,7 +16,7 @@ Template.selectHouse.events = {
 		if (!newId) newId = selectedId;
 		Session.set('selectedHouseId', newId);
 	}
-};
+});
 
 Template.showHouse.events({
 	'click button#delete': function(evt) {
@@ -77,6 +77,6 @@ var newHouse = {
 	};
 Session.setDefault('selectedHouseId', '');
 
-Template.registerHelper('selectHouse', function() {
+Template.registerHelper('selectedHouse', function() {
 	return LocalHouse.findOne(Session.get('selectedHouseId'));
 });
