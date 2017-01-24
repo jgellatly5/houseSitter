@@ -51,6 +51,12 @@ Template.plantDetails.events({
 });
 
 Template.houseForm.events({
+	'click button.addPlant': function(evt) {
+		evt.preventDefault();
+		var newPlant = {color: '', instructions: ''};
+		var modifier = {$push: {'plants': newPlant}};
+		updateLocalHouse(Session.get('selectedHouseId'), modifier);
+	},
 	'keyup input#house-name': function(evt) {
 		evt.preventDefault();
 		var modifier = {$set: {'name': evt.currentTarget.value}};
